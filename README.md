@@ -1,6 +1,6 @@
 # diffdfs
 
-A small R package to compute the difference between dataframes
+A small R package to compute the difference between data frames.
 
 ## Install
 

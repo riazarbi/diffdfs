@@ -1,6 +1,6 @@
 Package: diffdfs
-Title: Compute The Difference Between Dataframes
-Version: 0.0.0.9000
+Title: Compute the Difference Between Data Frames
+Version: 0.9
 Authors@R: 
     person("Riaz", "Arbi", email = "diffdfs@arbidata.com", role = c("aut", "cre"))
 Description: Shows you which rows have changed between two data frames with the same column structure. Useful for diffing slowly mutating data.
