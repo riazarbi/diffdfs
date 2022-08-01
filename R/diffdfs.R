@@ -1,24 +1,21 @@
-#' Diff dataframes
+#' Compute the Difference Between Dataframes
 #'
-#' Returns a list of adds, updates and deletes required to transform old_df into new_df.
-#' The dataframes need to have identical columns, column types and unique index columns.
+#' Returns a dataframe describing the modifications required to transform old_df into new_df.
+#' The dataframes needBugReports: 	https://github.com/tidyverse/dplyr/issues to have identical columns and column types and share unique index columns.
 #'
-#' @param new_df dataframe. A dataframe of new data
-#' @param old_df dataframe. A dataframe of old data. new_df and old_df can have overlapping data
-#' @param key_cols optional vector of column names that constitute a unique table key.
-#' @param verbose boolean, default FALSE. Should the processing be chatty?
+#' @param new_df A dataframe of new data.
+#' @param old_df A dataframe of old data. new_df and old_df can (and usually do) have overlapping data.
+#' @param key_cols optional vector of column names that constitute a unique table key. If NA, colnames(old_df) will be used.
+#' @param verbose logical, default FALSE. Should the processing be chatty?
 #'
-#' @return a dataframe with the structure
-#'       operation col1 col2 ...
-#'       new       4    g
-#'       modified  6    f
-#'       deleted   1    a
-#'       deleted   4    d
-#'       ...       ...  ...
+#' @return a dataframe.
 #'
 #' @export
-#' @import janitor
-#' @importFrom dplyr anti_join select mutate bind_rows
+#'
+#' @importFrom janitor compare_df_cols_same
+#' @importFrom dplyr anti_join select bind_rows everything
+#' @importFrom rlang .data
+#' @importFrom arrow Table
 #'
 #' @examples
 #' iris$key <- 1:nrow(iris)
@@ -26,17 +23,20 @@
 #' old_df <- iris[1:100,]
 #' old_df[75,1] <- 100
 #' new_df <- iris[50:150,]
-#' diff_dataframes(new_df, old_df, key_cols = "key")
-diff_dfs <-
+#' diffdfs(new_df, old_df, key_cols = "key")
+diffdfs <-
   function(new_df,
            old_df = NA,
            key_cols = NA,
            verbose = FALSE) {
 
     # WORKAROUND FOR https://issues.apache.org/jira/browse/ARROW-16010
-    new_df <- Table$create(new_df)$to_data_frame()
+    if(is.data.frame(new_df)) {
+      new_df <- arrow::Table$create(new_df)$to_data_frame()
+    }
+
     if(is.data.frame(old_df)) {
-      old_df <- Table$create(old_df)$to_data_frame()
+      old_df <- arrow::Table$create(old_df)$to_data_frame()
     }
     # END WORKAROUND
 
@@ -78,7 +78,7 @@ diff_dfs <-
     if(verbose) {
       message("Processing new_df...")
     }
-    new_df_uniqueness_check <- check_key_cols_unique(new_df, key_cols, verbose)
+    new_df_uniqueness_check <- checkkey(new_df, key_cols, verbose)
     if(!new_df_uniqueness_check) {
       stop("The new_df key columns do not contain unique rows. Diff tables only work with key cols that have unique rows.")
     }
@@ -88,7 +88,7 @@ diff_dfs <-
     if(verbose) {
       message("Processing old_df...")
     }
-    old_df_uniqueness_check <- check_key_cols_unique(old_df, key_cols, verbose)
+    old_df_uniqueness_check <- checkkey(old_df, key_cols, verbose)
     if(!old_df_uniqueness_check) {
       stop("The old_df key columns do not contain unique rows. Diff tables only work with key cols that have unique rows.")
     }
@@ -99,25 +99,23 @@ diff_dfs <-
 
     # Get new
 
-    new_rows <- dplyr::anti_join(new_df, old_df, by = key_cols)%>%
-      dplyr::mutate(operation = "new")
+    new_rows <- dplyr::anti_join(new_df, old_df, by = key_cols)
+    new_rows$operation <- "new"
 
     # Get modified
 
     modified_rows <-
-      dplyr::anti_join(new_and_modified_rows, new_rows, by = record_cols) %>%
-      dplyr::mutate(operation = "modified")
+      dplyr::anti_join(new_and_modified_rows, new_rows, by = record_cols)
+    modified_rows$operation <- "modified"
 
     # Get deleted rows
 
-    deleted_rows <- dplyr::anti_join(old_df, new_df, by = key_cols) %>%
-      dplyr::mutate(operation = "deleted")
+    deleted_rows <- dplyr::anti_join(old_df, new_df, by = key_cols)
+    deleted_rows$operation <- "deleted"
 
     diff_df <- as.data.frame(dplyr::bind_rows(new_rows, modified_rows, deleted_rows))
 
-    diff_df <- diff_df %>%
-      dplyr::mutate(`key_cols` = paste(key_cols, collapse = "|")) %>%
-      dplyr::select(key_cols, operation, everything())
+    diff_df <- dplyr::select(diff_df, .data$operation, dplyr::everything())
 
     return(diff_df)
   }
