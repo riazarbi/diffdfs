@@ -10,7 +10,9 @@ It's not on CRAN, so install via `devtools`.
 
 ## Use
 
-This package just has two functions, `checkkey` and `diffdfs`. `checkkey` is just a helper for `diffdfs` but you can use it if it suits your purposes.
+This package just has two functions, `checkkey` and `diffdfs`. 
+
+`checkkey` is just a helper for `diffdfs` but you can use it if it suits your purposes.
 
 here are some examples you can run in your `R` session:
 
