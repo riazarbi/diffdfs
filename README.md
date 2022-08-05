@@ -60,6 +60,10 @@ Checking that key column rows are unique
 [1] FALSE
 ```
 
+## More detail
+
+If you'd like to see more detail on the rationale behind this package, and a toy implementation of a `diffdfs` driven data versioning strategy, visit my blog post on the subject at [here](https://riazarbi.github.io/dev/diffing-dataframes-r/).
+
 ## Contributing
 
 [Riaz Arbi](https://github.com/riazarbi) is the maintainer of this package. If you'd like to point out a bug or make a suggestion, create an issue in this repo.
