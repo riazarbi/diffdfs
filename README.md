@@ -62,7 +62,7 @@ Checking that key column rows are unique
 
 ## More detail
 
-If you'd like to see more detail on the rationale behind this package, and a toy implementation of a `diffdfs` driven data versioning strategy, visit my blog post on the subject at [here](https://riazarbi.github.io/dev/diffing-dataframes-r/).
+If you'd like to see more detail on the rationale behind this package, and a toy implementation of a `diffdfs` driven data versioning strategy, read my blog post on the subject at [here](https://riazarbi.github.io/dev/diffing-dataframes-r/).
 
 ## Contributing
 
