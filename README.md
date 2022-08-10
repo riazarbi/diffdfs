@@ -4,9 +4,9 @@ A small R package to compute the difference between data frames.
 
 ## Install
 
-It's not on CRAN, so install via `devtools`.
+Install via CRAN with `install.packages("diffdfs")`
 
-`devtools::install_github("riazarbi/diffdfs")`
+Alternatively, install directly from this repository with `devtools::install_github("riazarbi/diffdfs")`
 
 ## Use
 
